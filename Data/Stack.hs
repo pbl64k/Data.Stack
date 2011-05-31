@@ -185,16 +185,12 @@ class Stack a b => BoolStack a b where
             ))
 
     doWhile :: (a b -> a b) -> (a b -> a b) -> (a b -> a b)
---    doWhile = flip whileDo
     doWhile = curry (,) >>> (>>> (>>> (
             (fst &&& (rearrangeR >>> second (app >>> branch) >>> envelope)) >>> envelope >>>
             ((second app >>> uncurry (uncurry doWhile)) ||| (second snd >>> snd))
             )))
---    doWhile = curry (,) >>> (>>> (>>> ( first (second ((>>> (second app >>> uncurry (uncurry doWhile))) >>> ((,) (second snd >>> snd)) >>> mirror)) >>> (ifThenElse *** id) >>> app)))
 
     whileDo :: (a b -> a b) -> (a b -> a b) -> (a b -> a b)
---    whileDo = ifThenElse >>> (>>> (id &&& id) >>> (>>> app))
---    whileDo = curry (curry (first (fst &&& (snd &&& snd)) >>> uncurry (uncurry ifThenElse)))
     whileDo = flip doWhile
 
     doUntil :: (a b -> a b) -> (a b -> a b) -> (a b -> a b)
@@ -214,7 +210,6 @@ class BoolStack a b => BoundStack a b where
     isEmpty :: a b -> a b
 
     obliterate :: a b -> a b
-    --obliterate = isEmpty >>> branch >>> (id ||| (discard >>> obliterate))
     obliterate = discard `doUntil` isEmpty
 
 instance BoundStack [] Dynamic where
@@ -249,13 +244,10 @@ class (BoolStack a b, IntegerStack a b) => FramingStack a b where
     frameSize :: a b -> a b
 
     destroyFrame :: a b -> a b
-    --destroyFrame = isFrameEmpty >>> branch >>> (id ||| (discard >>> destroyFrame))
     destroyFrame = discard `doUntil` isFrameEmpty
 
     isFrameEmpty :: a b -> a b
     isFrameEmpty = frameSize >>> popInteger >>> first (== 0) >>> pushBool
-
--- peekInteger (((inspectInteger >>> first (+ 1) >>> pushInteger) `doUntil` (inspectInteger >>> first (> 10) >>> pushBool)) (pushInteger' 1 (new :: FrameStack Dynamic)))
 
 data FrameStack a = FS { fs :: ([a], [Dynamic]) }
 

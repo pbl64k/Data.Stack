@@ -1,1 +1,10 @@
-Just some pointless arrow acrobatics.
+Just some pointless arrow acrobatics. This lib provides a few funky
+combinators, some basic operations on stacks and pairs of stacks, as well
+as PairStack type transforming a stack of a values into a stack of (a, a)
+tuples purely on the interface level. The dd combinator employs this to
+some effect, lifting type-agnostic stack operation to operate on pairs of
+values, e.g.:
+
+*Data.Stack Control.Applicative Control.Arrow> (push' 1 >>> push' 2 >>> push' 3 >>> push' 4 >>> dd over) []
+[2,1,4,3,2,1]
+
